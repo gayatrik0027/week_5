@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+ xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+ xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+ xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+ xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+ id="Definitions_Leave" targetNamespace="http://srmist.edu/leave">
+ <bpmn:process id="student-leave" name="Student Leave Application" isExecutable="true">
+  <bpmn:startEvent id="StartEvent_Leave" name="Leave requested">
+   <bpmn:outgoing>Flow_Start_Validate</bpmn:outgoing>
+  </bpmn:startEvent>
+  <bpmn:serviceTask id="Task_Validate" name="Validate leave request">
+   <bpmn:extensionElements><zeebe:taskDefinition type="validate-leave" /></bpmn:extensionElements>
+   <bpmn:incoming>Flow_Start_Validate</bpmn:incoming><bpmn:outgoing>Flow_Validate_Gateway</bpmn:outgoing>
+  </bpmn:serviceTask>
+  <bpmn:sequenceFlow id="Flow_Start_Validate" sourceRef="StartEvent_Leave" targetRef="Task_Validate" />
+  <bpmn:exclusiveGateway id="Gateway_Decision" name="Valid and short leave?" default="Flow_Invalid">
+   <bpmn:incoming>Flow_Validate_Gateway</bpmn:incoming>
+   <bpmn:outgoing>Flow_AutoApprove</bpmn:outgoing><bpmn:outgoing>Flow_Faculty</bpmn:outgoing><bpmn:outgoing>Flow_Invalid</bpmn:outgoing>
+  </bpmn:exclusiveGateway>
+  <bpmn:sequenceFlow id="Flow_Validate_Gateway" sourceRef="Task_Validate" targetRef="Gateway_Decision" />
+  <bpmn:sequenceFlow id="Flow_AutoApprove" sourceRef="Gateway_Decision" targetRef="Gateway_Merge">
+   <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">=valid and leaveDays &lt;= 2</bpmn:conditionExpression>
+  </bpmn:sequenceFlow>
+  <bpmn:sequenceFlow id="Flow_Faculty" sourceRef="Gateway_Decision" targetRef="Task_Faculty">
+   <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">=valid and leaveDays &gt; 2</bpmn:conditionExpression>
+  </bpmn:sequenceFlow>
+  <bpmn:sequenceFlow id="Flow_Invalid" sourceRef="Gateway_Decision" targetRef="Gateway_Merge">
+   <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">=not(valid)</bpmn:conditionExpression>
+  </bpmn:sequenceFlow>
+  <bpmn:userTask id="Task_Faculty" name="Faculty Advisor approval">
+   <bpmn:extensionElements><zeebe:formDefinition formId="fa-approval-form" /></bpmn:extensionElements>
+   <bpmn:incoming>Flow_Faculty</bpmn:incoming><bpmn:outgoing>Flow_Faculty_Merge</bpmn:outgoing>
+  </bpmn:userTask>
+  <bpmn:sequenceFlow id="Flow_Faculty_Merge" sourceRef="Task_Faculty" targetRef="Gateway_Merge" />
+  <bpmn:exclusiveGateway id="Gateway_Merge" name="Continue">
+   <bpmn:incoming>Flow_AutoApprove</bpmn:incoming><bpmn:incoming>Flow_Invalid</bpmn:incoming><bpmn:incoming>Flow_Faculty_Merge</bpmn:incoming>
+   <bpmn:outgoing>Flow_Merge_Notify</bpmn:outgoing>
+  </bpmn:exclusiveGateway>
+  <bpmn:serviceTask id="Task_Notify" name="Notify student">
+   <bpmn:extensionElements><zeebe:taskDefinition type="notify-student" /></bpmn:extensionElements>
+   <bpmn:incoming>Flow_Merge_Notify</bpmn:incoming><bpmn:outgoing>Flow_Notify_End</bpmn:outgoing>
+  </bpmn:serviceTask>
+  <bpmn:sequenceFlow id="Flow_Merge_Notify" sourceRef="Gateway_Merge" targetRef="Task_Notify" />
+  <bpmn:endEvent id="EndEvent_Leave" name="Request completed"><bpmn:incoming>Flow_Notify_End</bpmn:incoming></bpmn:endEvent>
+  <bpmn:sequenceFlow id="Flow_Notify_End" sourceRef="Task_Notify" targetRef="EndEvent_Leave" />
+ </bpmn:process>
+</bpmn:definitions>

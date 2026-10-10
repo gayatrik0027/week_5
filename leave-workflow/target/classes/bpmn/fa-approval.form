@@ -1,0 +1,60 @@
+{
+  "components": [
+    {
+      "type": "text",
+      "text": "Student leave request",
+      "id": "Text_Heading"
+    },
+    {
+      "type": "textfield",
+      "key": "studentName",
+      "label": "Student name",
+      "readonly": true,
+      "id": "Field_StudentName"
+    },
+    {
+      "type": "textfield",
+      "key": "regNo",
+      "label": "Registration number",
+      "readonly": true,
+      "id": "Field_RegNo"
+    },
+    {
+      "type": "textfield",
+      "key": "fromDate",
+      "label": "From date",
+      "readonly": true,
+      "id": "Field_FromDate"
+    },
+    {
+      "type": "textfield",
+      "key": "toDate",
+      "label": "To date",
+      "readonly": true,
+      "id": "Field_ToDate"
+    },
+    {
+      "type": "textfield",
+      "key": "reason",
+      "label": "Reason",
+      "readonly": true,
+      "id": "Field_Reason"
+    },
+    {
+      "type": "checkbox",
+      "key": "approved",
+      "label": "Approve this leave",
+      "id": "Field_Approved"
+    },
+    {
+      "type": "textarea",
+      "key": "remarks",
+      "label": "Remarks",
+      "id": "Field_Remarks"
+    }
+  ],
+  "type": "default",
+  "id": "fa-approval-form",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.8.0"
+}
